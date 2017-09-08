@@ -17,6 +17,8 @@ var context = canvas.getContext('2d');
 
 var paddleWidth = 20;
 var paddleHeight = 100;
+var paddleMoveSpeed = 5;
+
 var ballRadius = 10;
 
 var backgroundColor = "#00cc99";
@@ -107,6 +109,8 @@ var render = function() {
 };
 
 var update = function() {
+	player.update();
+	computer.update();
 	ball.update(player.paddle, computer.paddle);
 };
 
@@ -141,10 +145,76 @@ Ball.prototype.update = function(paddle1, paddle2) {
 	}
 	
 	// If paddle is hit. . .
+	if ( top_x < canvas.width / 2){
 	var playerHitX = paddle1.x + paddle1.width;
 	if ( (playerHitX > top_x && playerHitX < bottom_x) && (paddle1.y < top_y && paddle1.y + paddle1.height > bottom_y) ) {
 		this.x_speed = 10;
 		this.y_speed += (paddle1.x_speed / 2);
 		this.x += this.x_speed;
+		}
+	} else {
+		
+		if ( (paddle2.x > top_x && paddle2.x < bottom_x ) && (top_y > paddle2.y && bottom_y < paddle2.y + paddle2.height) ) {
+			
+			this.x_speed = -ballRadius;
+			this.y_speed += (paddle1.y_speed / 2);
+			this.x += this.x_speed;
+			
+		}
 	}
+};
+	
+// Add some control. Because we've lost it.
+var keyDown = {};
+
+window.addEventListener("keydown", function(event) {
+	keyDown[event.keyCode] = true;
+});
+
+window.addEventListener("keyup", function(event) {
+	delete keyDown [event.keyCode];
+});
+
+Player.prototype.update = function() {
+	for (var key in keyDown) {
+		var value = Number(key);
+		//
+		if ( value == 81 ) {
+			this.paddle.move(0, -paddleMoveSpeed);
+			//
+		} else if ( value == 65) {
+			this.paddle.move(0, paddleMoveSpeed);
+		} else {
+			this.paddle.move(0,0);
+		}
+	}
+};
+
+Paddle.prototype.move = function(x, y) {
+	this.x += x;
+	this.y += y;
+	this.x_speed = x;
+	this.y_speed = y;
+};
+
+Computer.prototype.update = function() {
+	for (var key in keyDown) {
+		var value = Number(key);
+		//
+		if ( value == 38 ) {
+			this.paddle.move(0, -paddleMoveSpeed);
+			//
+		} else if ( value == 40) {
+			this.paddle.move(0, paddleMoveSpeed);
+		} else {
+			this.paddle.move(0,0);
+		}
+	}
+};
+
+Computer.prototype.move = function(x, y) {
+	this.x += x;
+	this.y += y;
+	this.x_speed = x;
+	this.y_speed = y;
 };
